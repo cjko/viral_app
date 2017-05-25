@@ -45,6 +45,7 @@ def swipePost(request):
 	return HttpResponse(status=200)
 
 def createUser(request):
+	print(request)
 	postData = {
 		'username': request.POST['username'],
 		'first_name': request.POST['first_name'],
