@@ -31,29 +31,30 @@ class FeedSerializer(serializers.HyperlinkedModelSerializer):
 		model = Post
 		fields = ('id', 'content', 'posted_by', 'likes', 'views')
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-	feed = FeedSerializer(read_only=True,many=True)
-	class Meta:
-		model = User
-		fields = ('id','username','first_name', 'last_name', 'email', 'feed', 'created_at', 'updated_at')
+
 
 class PostSerializer(serializers.HyperlinkedModelSerializer):
-	like_count = serializers.IntegerField()
-	view_count = serializers.IntegerField()
 
 	class Meta:
 		model = Post
-		fields = ('id', 'content', 'posted_by', 'feeds', 'likes', 'like_count','views', 'view_count', 'created_at', 'updated_at')
+		fields = ('id', 'content', 'posted_by', 'feeds', 'likes','views', 'created_at', 'updated_at')
 
 	def get_like_count(self, obj):
 		return obj.like_set.all().count()
+
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+	feed = FeedSerializer(read_only=True,many=True)
+	likes = PostSerializer(read_only=True,many=True)
+	class Meta:
+		model = User
+		fields = ('id','username','first_name', 'last_name', 'email', 'feed', 'created_at', 'updated_at', 'likes')
 
 class UserViewSet(viewsets.ModelViewSet):
 	queryset = User.objects.all()
 	serializer_class = UserSerializer
 
 class PostViewSet(viewsets.ModelViewSet):
-	queryset = Post.objects.annotate(like_count=Count('likes'), view_count=Count('views'))
+	queryset = Post.objects.all()
 	serializer_class = PostSerializer
 
 router = routers.DefaultRouter()
